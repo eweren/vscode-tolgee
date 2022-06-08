@@ -3,9 +3,6 @@ import { Tolgee } from '@tolgee/core';
 import * as vscode from 'vscode';
 import { findMatches, flattenObj } from './utils';
 
-const matchFunctionalExpression = /(?:\$?t\([\{\s\w]*(?:key:)?\s*["`'])([\w.]*)/g;
-const matchHtmlExpression = /(?:\<T\s*key[Nn]ame\s*=\s*?["'`])([\w.]*)/g;
-
 export class TolgeeCompletionItemProvider implements vscode.CompletionItemProvider {
   private completionItems!: PromiseLike<vscode.CompletionItem[]>;
 
@@ -15,10 +12,8 @@ export class TolgeeCompletionItemProvider implements vscode.CompletionItemProvid
 
   public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> {
     const line = document.getText(new vscode.Range(position.with(undefined, 0), position.with(undefined, Infinity)));
-    const functionalMatches = [...line.matchAll(matchFunctionalExpression)];
-    const htmlMatches = [...line.matchAll(matchHtmlExpression)];
 
-    const match = findMatches(functionalMatches, position) || findMatches(htmlMatches, position);
+    const match = findMatches(line, position.character);
 
     if (match) {
       return this.completionItems;

@@ -24,7 +24,11 @@ You have to set your tolgee project configuration in your workspace settings.
 
 ## Changelog
 
+v0.0.3
+- add tests
+- fix typo
+
 v0.0.2
 - add hover provider
-- fix regex for finding occurences
+- fix regex for finding occurrences
 

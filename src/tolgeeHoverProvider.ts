@@ -3,9 +3,6 @@ import { Tolgee } from '@tolgee/core';
 import * as vscode from 'vscode';
 import { findMatches } from './utils';
 
-const matchFunctionalExpression = /(?:\$?t\([\{\s\w]*(?:key:)?\s*["`'])([\w.]*)/g;
-const matchHtmlExpression = /(?:\<T\s*key[Nn]ame\s*=\s*?["'`])([\w.]*)/g;
-
 export class TolgeeHoverProvider implements vscode.HoverProvider {
 
   constructor(private tolgee: Tolgee, private lang: string) {
@@ -13,10 +10,8 @@ export class TolgeeHoverProvider implements vscode.HoverProvider {
   }
   provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
     const line = document.getText(new vscode.Range(position.with(undefined, 0), position.with(undefined, Infinity)));
-    const functionalMatches = [...line.matchAll(matchFunctionalExpression)];
-    const htmlMatches = [...line.matchAll(matchHtmlExpression)];
 
-    const match = findMatches(functionalMatches, position) || findMatches(htmlMatches, position);
+    const match = findMatches(line, position.character);
 
     if (match) {
       return this.getTranslations().then(translations => {

@@ -1,4 +1,5 @@
-import type { Position } from 'vscode';
+const matchFunctionalExpression = /(?:\$?t\([\{\s\w]*(?:key:)?\s*["`'])([\w.]*)/g;
+const matchHtmlExpression = /(?:\<T\s*key[Nn]ame\s*=\s*?["'`])([\w.]*)/g;
 
 export const flattenObj = (obj: any, parent?: any, res: Record<string, string> = {}) => {
   for (const key of Object.keys(obj)) {
@@ -12,10 +13,17 @@ export const flattenObj = (obj: any, parent?: any, res: Record<string, string> =
   return res;
 };
 
-export const findMatches = (matches: RegExpMatchArray[], position: Position) => matches?.find(m => {
-  if (m.index === undefined || m.index === null) {
-    return;
-  }
-  const positionOfOccurrence = m.index + 1 + m[0].indexOf(m[1]);
-  return positionOfOccurrence < position.character && positionOfOccurrence + m[1].length > position.character;
-});
+export const findMatches = (line: string, position: number) => {
+  const functionalMatches = [...line.matchAll(matchFunctionalExpression)];
+  const htmlMatches = [...line.matchAll(matchHtmlExpression)];
+  const matches = [...functionalMatches, ...htmlMatches];
+
+  return matches?.find(m => {
+    if (m.index === undefined || m.index === null) {
+      return;
+    }
+
+    const positionOfOccurrence = m.index + 1 + m[0].indexOf(m[1]);
+    return positionOfOccurrence < position && positionOfOccurrence + m[1].length > position;
+  });
+};
