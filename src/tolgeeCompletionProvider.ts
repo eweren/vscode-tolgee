@@ -3,8 +3,8 @@ import { Tolgee } from '@tolgee/core';
 import * as vscode from 'vscode';
 import { findMatches, flattenObj } from './utils';
 
-const matchFunctionalExpression = /(?:\$?t\([\{\s\w]*(?:key:)?\s*["`'])([\w.]*)/;
-const matchHtmlExpression = /(?:\<T\s*key[Nn]ame\s*=\s*?["'`])([\w.]*)/;
+const matchFunctionalExpression = /(?:\$?t\([\{\s\w]*(?:key:)?\s*["`'])([\w.]*)/g;
+const matchHtmlExpression = /(?:\<T\s*key[Nn]ame\s*=\s*?["'`])([\w.]*)/g;
 
 export class TolgeeCompletionItemProvider implements vscode.CompletionItemProvider {
   private completionItems!: PromiseLike<vscode.CompletionItem[]>;
