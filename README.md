@@ -22,3 +22,9 @@ You have to set your tolgee project configuration in your workspace settings.
 - Muli-Workspaces with different configs do not work
 - Updates of the cached translations will only be triggered on window state change
 
+## Changelog
+
+v0.0.2
+- add hover provider
+- fix regex for finding occurences
+

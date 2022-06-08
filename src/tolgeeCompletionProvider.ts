@@ -1,32 +1,26 @@
 'use strict';
 import { Tolgee } from '@tolgee/core';
 import * as vscode from 'vscode';
+import { findMatches, flattenObj } from './utils';
 
-const matchFunctionalExpression = /\$?t\((?:[\{\s\w]*key:\s*)?["`']([\w]*)$/;
-const matchHtmlExpression = /\<T(?:\s*key[Nn]ame\s*=\s*)?["'`]([\w]*)$/;
+const matchFunctionalExpression = /(?:\$?t\([\{\s\w]*(?:key:)?\s*["`'])([\w.]*)/;
+const matchHtmlExpression = /(?:\<T\s*key[Nn]ame\s*=\s*?["'`])([\w.]*)/;
 
 export class TolgeeCompletionItemProvider implements vscode.CompletionItemProvider {
   private completionItems!: PromiseLike<vscode.CompletionItem[]>;
 
-  private tolgee: Tolgee;
-
-  constructor(private config: { apiUrl: string, apiKey: string, language: string }) {
-    this.tolgee = Tolgee.init(
-      {
-        apiUrl: config.apiUrl,
-        apiKey: config.apiKey,
-        availableLanguages: [config.language],
-        defaultLanguage: config.language,
-        fallbackLanguage: config.language
-      });
+  constructor(private tolgee: Tolgee, private lang: string) {
     this.refreshCompletionItems();
   }
 
   public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> {
-    let lineUntilPosition = document.getText(new vscode.Range(position.with(undefined, 0), position));
-    let functionalMatch = lineUntilPosition.match(matchFunctionalExpression)?.[0];
-    let htmlMatch = lineUntilPosition.match(matchHtmlExpression)?.[0];
-    if (functionalMatch || htmlMatch) {
+    const line = document.getText(new vscode.Range(position.with(undefined, 0), position.with(undefined, Infinity)));
+    const functionalMatches = [...line.matchAll(matchFunctionalExpression)];
+    const htmlMatches = [...line.matchAll(matchHtmlExpression)];
+
+    const match = findMatches(functionalMatches, position) || findMatches(htmlMatches, position);
+
+    if (match) {
       return this.completionItems;
     } else {
       return Promise.reject<vscode.CompletionItem[]>("Not inside html class attribute.");
@@ -34,7 +28,7 @@ export class TolgeeCompletionItemProvider implements vscode.CompletionItemProvid
   }
 
   public async refreshCompletionItems() {
-    this.completionItems = this.tolgee.loadTranslations(this.config.language).then(translations => {
+    this.completionItems = this.tolgee.loadTranslations(this.lang).then(translations => {
       const flattened = flattenObj(translations);
       return Object.keys(flattened).map(key => {
         return new vscode.CompletionItem({ label: key, description: flattened[key] }, vscode.CompletionItemKind.EnumMember);
@@ -46,15 +40,3 @@ export class TolgeeCompletionItemProvider implements vscode.CompletionItemProvid
     });
   }
 };
-
-const flattenObj = (obj: any, parent?: any, res: Record<string, string> = {}) => {
-  for (const key of Object.keys(obj)) {
-    const propName = parent ? parent + '.' + key : key;
-    if (typeof obj[key] === 'object') {
-      flattenObj(obj[key], propName, res);
-    } else {
-      res[propName] = obj[key];
-    }
-  }
-  return res;
-}
