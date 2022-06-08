@@ -23,7 +23,7 @@ export const findMatches = (line: string, position: number) => {
       return;
     }
 
-    const positionOfOccurrence = m.index + 1 + m[0].indexOf(m[1]);
-    return positionOfOccurrence < position && positionOfOccurrence + m[1].length > position;
+    const positionOfOccurrence = m.index + m[0].indexOf(m[1]);
+    return positionOfOccurrence <= position && positionOfOccurrence + m[1].length >= position;
   });
 };
