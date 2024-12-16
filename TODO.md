@@ -1,0 +1,1 @@
+[ ] when changing the tolgee config and adding a new language, the `changeLanguage` command does not update the languages array 

@@ -1,47 +1,118 @@
-import { Tolgee } from '@tolgee/core';
-import { countReset } from 'console';
-import * as vscode from 'vscode';
-import { TolgeeCompletionItemProvider } from './tolgeeCompletionProvider';
-import { TolgeeHoverProvider } from './tolgeeHoverProvider';
+import { TolgeeInstance, TreeTranslationsData } from '@tolgee/core';
+import { defineConfigs, defineExtension, ref, useCommand, useDisposable, useEvent, useLogger, useStatusBarItem, watch } from 'reactive-vscode';
+import { initTolgee } from './utils/tolgee';
+import { useAnnotations } from './annotation';
+import { useCompletion } from './completions';
+import loadTolgeeRc from './tolgeerc';
+import { commands, languages, Location, Position, StatusBarAlignment, Uri, window, workspace } from "vscode";
+import { getStaticData } from './tolgee';
+import { config } from './utils/config';
 
-export function activate(context: vscode.ExtensionContext) {
+const onDidSaveTextDocument = useEvent(workspace.onDidSaveTextDocument);
 
-	let config = vscode.workspace.getConfiguration("tolgee");
-	let tolgee: Tolgee;
+let staticData = ref<{
+	staticData: { [key: string]: TreeTranslationsData };
+	staticDataFiles: Record<string, {
+		content: string;
+		path: Uri;
+	}>;
+}>({ staticData: {}, staticDataFiles: {} })
 
-	const setupTolgee = () => {
-		if (!(config.apiKey && config.apiUrl && config.language)) {
-			vscode.window.showErrorMessage("Tolgee: Please configure your API key, API URL and language via settings.");
-			return;
-		}
+const definitionProvider = languages.registerDefinitionProvider(["svelte", "html", "ts", "js", "tsx", "jsx"], {
+	provideDefinition(document, position) {
+		return new Promise(resolve => {
+			const range = document.getWordRangeAtPosition(position);
+			if (range) {
+				const line = document.lineAt(range.start.line);
+				const word = document.getText(range);
+				if (!/\"|\'|\`/.test(line.text[line.text.indexOf(word) - 1])) {
+					return resolve(null);
+				}
+				const [nameSpaceOrFull, key] = word.split(".");
+				const indexKey = `${config.language}${key ? `.${nameSpaceOrFull}` : ""}`;
 
-		tolgee = Tolgee.init(
-			{
-				apiUrl: config.apiUrl,
-				apiKey: config.apiKey,
-				availableLanguages: [config.language],
-				defaultLanguage: config.language,
-				fallbackLanguage: config.language
-			});
+				const statData = staticData.value.staticData;
+				const statFiles = staticData.value.staticDataFiles;
 
-		let provider = new TolgeeCompletionItemProvider(tolgee, config.language);
-		let hoverProvider = new TolgeeHoverProvider(tolgee, config.language);
+				if (statData[indexKey][key ? key : nameSpaceOrFull]) {
+					const file = statFiles[indexKey];
+					const lines = file.content.split('\n');
+					const line = lines.find(line => line.trim().startsWith(`"${word}"`));
 
-		context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ pattern: '**/*.{tsx,jsx,js,ts,svelte,html}', scheme: 'file' }, provider));
-		context.subscriptions.push(vscode.languages.registerHoverProvider({ pattern: '**/*.{tsx,jsx,js,ts,svelte,html}', scheme: 'file' }, hoverProvider));
+					return resolve(new Location(file.path, new Position(line ? lines.indexOf(line) : 0, line?.indexOf(word) ?? 0)));
+				}
+			} return resolve(null);
+		})
+	}
+});
 
-		context.subscriptions.push(vscode.window.onDidChangeWindowState(() => {
-			provider.refreshCompletionItems();
-		}));
-	};
-	setupTolgee();
-	vscode.workspace.onDidChangeConfiguration(() => {
-		config = vscode.workspace.getConfiguration("tolgee");
-		setupTolgee();
+export = defineExtension(async () => {
+	const logger = useLogger('Tolgee');
+	logger.info('Extension Activated');
+	logger.show();
+
+	const { language } = defineConfigs('tolgee', {
+		language: String,
+		highlightColor: String,
+		filePattern: String,
 	});
 
+	useStatusBarItem({
+		alignment: StatusBarAlignment.Right,
+		priority: 100,
+		command: "tolgee.changeLanguage",
+		text: () => `$(megaphone) Change language`,
+	});
 
-}
+	useDisposable(definitionProvider);
 
-// this method is called when your extension is deactivated
-export function deactivate() { }
+	const tolgeeRc = ref(await loadTolgeeRc());
+
+	useCommand('tolgee.changeLanguage', async () => {
+		if (tolgeeRc.value?.config?.push?.files) {
+			const newLanguage = await window.showQuickPick(tolgeeRc.value?.config.push!.files!.map(f => f.language), { title: "Which language values should be shown in VSCode?" }) ?? language.value;
+			language.value = newLanguage;
+			window.showInformationMessage(`Tolgee preview language set to ${newLanguage}`);
+		}
+	});
+
+	staticData = ref(await getStaticData(tolgeeRc.value?.config?.push?.files ?? []));
+
+	let tolgee = ref<TolgeeInstance | undefined>(await initTolgee(staticData.value.staticData, language, logger));
+
+	if (!tolgee.value) {
+		return;
+	}
+
+	if ((tolgeeRc.value?.config?.push?.files?.length ?? 0) > 0) {
+		onDidSaveTextDocument(async (document) => {
+			const configFiles = tolgeeRc.value!.config!.push!.files!.map(f => f.path);
+			if (configFiles.some(f => document.uri.fsPath.endsWith(f))) {
+				staticData = ref(await getStaticData(tolgeeRc.value?.config?.push?.files ?? []));
+				tolgee.value?.updateOptions({ staticData: staticData.value.staticData });
+				tolgee.value = tolgee.value;
+				init();
+			} else if (document.fileName === tolgeeRc.value?.filepath) {
+				logger.info("Tolgee config change. Reload");
+				staticData = ref(await getStaticData(tolgeeRc.value?.config?.push?.files ?? []));
+				tolgee = ref<TolgeeInstance | undefined>(await initTolgee(staticData.value.staticData, language, logger));
+			}
+		});
+
+	}
+
+	const init = async () => {
+		const loadedRecords = ref(await tolgee.value!.loadRecord({ language: language.value }));
+		logger.info("Updated tolgee records");
+		useAnnotations(loadedRecords, tolgee, logger, language);
+		useCompletion(loadedRecords, logger);
+		logger.info(`Loaded records for ${language.value}`);
+	}
+	watch([language], () => {
+		tolgee.value?.changeLanguage(language.value);
+		init();
+	});
+
+	init();
+
+});
