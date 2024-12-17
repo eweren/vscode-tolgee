@@ -29,7 +29,7 @@ const definitionProvider = languages.registerDefinitionProvider(["svelte", "html
 					return resolve(null);
 				}
 				const [nameSpaceOrFull, key] = word.split(".");
-				const indexKey = `${config.language}${key ? `.${nameSpaceOrFull}` : ""}`;
+				const indexKey = `${config.language}${key ? `:${nameSpaceOrFull}` : ""}`;
 
 				const statData = staticData.value.staticData;
 				const statFiles = staticData.value.staticDataFiles;
