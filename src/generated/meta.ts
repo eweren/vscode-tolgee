@@ -2,11 +2,11 @@
 // @see https://github.com/antfu/vscode-ext-gen
 
 // Meta info
-export const publisher = "THEARC"
+export const publisher = "LILAGLASS"
 export const name = "tolgee"
-export const version = "0.0.3"
-export const displayName = "tolgee"
-export const description = "Get autocompletion for your tolgee workspace"
+export const version = "0.1.0"
+export const displayName = "Tolgee"
+export const description = "Get autocompletion and inline preview for your tolgee projects"
 export const extensionId = `${publisher}.${name}`
 
 /**
@@ -16,7 +16,7 @@ export type CommandKey =
   | "tolgee.changeLanguage"
 
 /**
- * Commands map registed by `THEARC.tolgee`
+ * Commands map registed by `LILAGLASS.tolgee`
  */
 export const commands = {
   /**
@@ -31,20 +31,17 @@ export const commands = {
  */
 export type ConfigKey = 
   | "tolgee.language"
-  | "tolgee.configPath"
   | "tolgee.highlightColor"
   | "tolgee.filePattern"
 
 export interface ConfigKeyTypeMap {
   "tolgee.language": string,
-  "tolgee.configPath": string,
   "tolgee.highlightColor": string,
   "tolgee.filePattern": string,
 }
 
 export interface ConfigShorthandMap {
   language: "tolgee.language",
-  configPath: "tolgee.configPath",
   highlightColor: "tolgee.highlightColor",
   filePattern: "tolgee.filePattern",
 }
@@ -56,7 +53,7 @@ export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
 
 
 /**
- * Configs map registered by `THEARC.tolgee`
+ * Configs map registered by `LILAGLASS.tolgee`
  */
 export const configs = {
   /**
@@ -69,16 +66,6 @@ export const configs = {
     key: "tolgee.language",
     default: "en",
   } as ConfigItem<"tolgee.language">,
-  /**
-   * The path to the tolgee config file.
-   * @key `tolgee.configPath`
-   * @default `".tolgeerc"`
-   * @type `string`
-   */
-  configPath: {
-    key: "tolgee.configPath",
-    default: ".tolgeerc",
-  } as ConfigItem<"tolgee.configPath">,
   /**
    * The color to be used to highlight tolgee keys.
    * @key `tolgee.highlightColor`
@@ -103,7 +90,6 @@ export const configs = {
 
 export interface ScopedConfigKeyTypeMap {
   "language": string,
-  "configPath": string,
   "highlightColor": string,
   "filePattern": string,
 }
@@ -112,7 +98,6 @@ export const scopedConfigs = {
   scope: "tolgee",
   defaults: {
     "language": "en",
-    "configPath": ".tolgeerc",
     "highlightColor": "#ec417a",
     "filePattern": "**/*.{tsx,jsx,js,ts,svelte,html}",
   } satisfies ScopedConfigKeyTypeMap,
@@ -121,7 +106,6 @@ export const scopedConfigs = {
 export interface NestedConfigs {
   "tolgee": {
     "language": string,
-    "configPath": string,
     "highlightColor": string,
     "filePattern": string,
   },
@@ -129,7 +113,6 @@ export interface NestedConfigs {
 
 export interface NestedScopedConfigs {
   "language": string,
-  "configPath": string,
   "highlightColor": string,
   "filePattern": string,
 }

@@ -4,7 +4,7 @@ import { initTolgee } from './utils/tolgee';
 import { useAnnotations } from './annotation';
 import { useCompletion } from './completions';
 import loadTolgeeRc from './tolgeerc';
-import { commands, languages, Location, Position, StatusBarAlignment, Uri, window, workspace } from "vscode";
+import { commands, languages, Location, Position, StatusBarAlignment, ThemeColor, Uri, window, workspace } from "vscode";
 import { getStaticData } from './tolgee';
 import { config } from './utils/config';
 
@@ -57,12 +57,15 @@ export = defineExtension(async () => {
 		filePattern: String,
 	});
 
-	useStatusBarItem({
+
+	const item = useStatusBarItem({
 		alignment: StatusBarAlignment.Right,
-		priority: 100,
-		command: "tolgee.changeLanguage",
-		text: () => `$(megaphone) Change language`,
+		command: 'tolgee.changeLanguage',
+		tooltip: "Switch tolgee language"
 	});
+
+	item.show();
+	item.text = `🐭 ${language.value}`;
 
 	useDisposable(definitionProvider);
 
@@ -110,6 +113,7 @@ export = defineExtension(async () => {
 	}
 	watch([language], () => {
 		tolgee.value?.changeLanguage(language.value);
+		item.text = `🐭 ${language.value}`;
 		init();
 	});
 

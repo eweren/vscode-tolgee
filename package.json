@@ -1,5 +1,5 @@
 {
-  "publisher": "Nico Hülscher",
+  "publisher": "LILAGLASS",
   "name": "tolgee",
   "displayName": "Tolgee",
   "version": "0.1.0",
@@ -39,11 +39,6 @@
           "type": "string",
           "default": "en",
           "description": "The language to use for the tolgee value preview."
-        },
-        "tolgee.configPath": {
-          "type": "string",
-          "default": ".tolgeerc",
-          "description": "The path to the tolgee config file."
         },
         "tolgee.highlightColor": {
           "type": "string",
