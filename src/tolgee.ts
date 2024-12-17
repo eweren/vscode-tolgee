@@ -38,8 +38,8 @@ export const getStaticData = async (files: FileMatch[]) => {
       continue;
     }
     if (file.namespace) {
-      staticData[file.language + "." + file.namespace] = data.translations;
-      staticDataFiles[file.language + "." + file.namespace] = { content: data.rawFile, path: data.filePath };
+      staticData[`${file.language}:${file.namespace}`] = data.translations;
+      staticDataFiles[`${file.language}:${file.namespace}`] = { content: data.rawFile, path: data.filePath };
     } else {
       staticData[file.language] = data.translations;
       staticDataFiles[file.language] = { content: data.rawFile, path: data.filePath };
