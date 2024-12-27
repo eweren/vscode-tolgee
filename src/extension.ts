@@ -51,7 +51,7 @@ export = defineExtension(async () => {
 	logger.info('Extension Activated');
 	logger.show();
 
-	const { language } = defineConfigs('tolgee', {
+	const { language } = defineConfigs('tolgeev2', {
 		language: String,
 		highlightColor: String,
 		filePattern: String,

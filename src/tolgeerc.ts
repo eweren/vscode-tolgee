@@ -68,13 +68,24 @@ function parseConfig(input: Schema, configDir: string): Schema {
 }
 
 async function getSchema() {
-  const path = join(
-    __dirname,
-    '..',
-    'src',
-    'schema.json'
-  );
-  return JSON.parse((await readFile(path)).toString());
+  try {
+    const path = join(
+      __dirname,
+      '..',
+      'out',
+      'schema.json'
+    );
+    return JSON.parse((await readFile(path)).toString());
+  } catch (e) {
+
+    const path = join(
+      __dirname,
+      '..',
+      'src',
+      'schema.json'
+    );
+    return JSON.parse((await readFile(path)).toString());
+  }
 }
 
 export default async function loadTolgeeRc(): Promise<{ config: Schema, filepath: string, languages: Array<string> } | null> {

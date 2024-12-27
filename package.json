@@ -2,7 +2,7 @@
   "publisher": "LILAGLASS",
   "name": "tolgeev2",
   "displayName": "Tolgee",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Get autocompletion and inline preview for your tolgee projects",
   "repository": {
     "type": "git",
@@ -56,7 +56,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && cp ./src/schema.json ./out/schema.json",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
