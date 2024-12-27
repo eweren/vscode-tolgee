@@ -28,19 +28,6 @@ Example .tolgeerc
 {
   "projectId": 1,
   "apiUrl": "https://tolgee.example.com/",
-  "push": {
-    "files": [
-      {
-        "path": "./src/i18n/de.json",
-        "language": "de"
-      },
-      {
-        "path": "./src/i18n/en.json",
-        "language": "en"
-      }
-    ],
-    "forceMode": "OVERRIDE"
-  },
   "pull": {
     "path": "./src/i18n"
   }
@@ -53,17 +40,17 @@ This extension can be adjusted by the following settings
 
 ```json
 "properties": {
-  "tolgee.language": {
+  "tolgeev2.language": {
     "type": "string",
     "default": "en",
     "description": "The language to use for the tolgee value preview."
   },
-  "tolgee.highlightColor": {
+  "tolgeev2.highlightColor": {
     "type": "string",
     "default": "#ec417a",
     "description": "The color to be used to highlight tolgee keys."
   },
-  "tolgee.filePattern": {
+  "tolgeev2.filePattern": {
     "type": "string",
     "default": "**/*.{tsx,jsx,js,ts,svelte,html}",
     "description": "The pattern in which the extension should search for tolgee keys."
@@ -74,11 +61,14 @@ This extension can be adjusted by the following settings
 ## Commands
 
 ```bash
-# change the inline-preview language to one of the languages defined in push
-tolgee.changeLanguage 
+# change the inline-preview language to one of the languages found within the pull-path from config
+tolgeev2.changeLanguage 
 ```
 
 ## Changelog
+
+v0.1.1, v0.1.2, v0.1.3
+- small bugfixes
 
 v0.1.0
 - change architecture to use reactive-vscode

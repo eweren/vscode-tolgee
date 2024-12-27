@@ -6,6 +6,7 @@ import { workspace } from "vscode";
 
 import { existsSync } from 'fs';
 import type { Schema } from './schema';
+import { readLanguagesFromFromPath } from './tolgee';
 
 const explorer = cosmiconfig('tolgee', {
   loaders: {
@@ -76,7 +77,7 @@ async function getSchema() {
   return JSON.parse((await readFile(path)).toString());
 }
 
-export default async function loadTolgeeRc(): Promise<{ config: Schema, filepath: string } | null> {
+export default async function loadTolgeeRc(): Promise<{ config: Schema, filepath: string, languages: Array<string> } | null> {
   let res: CosmiconfigResult;
 
   res = await explorer.search(workspace.rootPath);
@@ -99,5 +100,10 @@ export default async function loadTolgeeRc(): Promise<{ config: Schema, filepath
     throw new Error(errMessage);
   }
 
-  return { config, filepath: res.filepath };
+  if (config.pull?.path) {
+    const languages = await readLanguagesFromFromPath(config.pull.path) ?? [];
+    return { config, filepath: res.filepath, languages };
+  }
+
+  return { config, filepath: res.filepath, languages: [] };
 }

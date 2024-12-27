@@ -3,8 +3,9 @@ import { mkdir, readFile } from 'fs/promises';
 import { CONFIG_PATH } from './utils/constants';
 import { Uri, window, workspace } from 'vscode';
 import { readFileSync } from 'fs';
-import { TolgeeStaticData, TreeTranslationsData } from '@tolgee/core';
-import { FileMatch } from './schema';
+import { TreeTranslationsData } from '@tolgee/core';
+import { Schema } from './schema';
+import { useLogger } from 'reactive-vscode';
 
 type Token = { token: string; expires: number };
 
@@ -18,7 +19,7 @@ type Store = {
 
 export const getFileFromPath = async (path: string) => {
   try {
-    const filePath = (await workspace.findFiles(path.replace(/^\//, "")))[0];
+    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}.json`))[0];
     const rawFile = readFileSync(filePath.fsPath, 'utf8');
     return { translations: JSON.parse(rawFile) as TreeTranslationsData, rawFile, filePath };
   } catch (e) {
@@ -27,22 +28,75 @@ export const getFileFromPath = async (path: string) => {
   }
 };
 
+export const readFileUrisFromPath = async (path: string) => {
+  try {
+    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}/*.json`));
 
-export const getStaticData = async (files: FileMatch[]) => {
+    const logger = useLogger("Tolgee22");
+
+    logger.info(JSON.stringify(filePath));
+    return filePath;
+  } catch (e) {
+    window.showErrorMessage(`Translation data under ${path} could not be parsed. Is it valid JSON?`);
+    return null;
+  }
+};
+
+export const readLanguagesFromFromPath = async (path: string) => {
+  try {
+    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}/*.json`));
+    const logger = useLogger("Tolgee");
+    logger.info(filePath.map(a => a.path.split("/").pop()!.split(".")[0]))
+    return filePath.map(a => a.path.split("/").pop()!.split(".")[0]);
+  } catch (e) {
+    window.showErrorMessage(`Translation data under ${path} could not be parsed. Is it valid JSON?`);
+    return null;
+  }
+};
+
+function createRegexFromTemplate(template: string): RegExp {
+  // Escape special regex characters
+  const escapedTemplate = template.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Replace placeholders with regex groups
+  const regexPattern = escapedTemplate
+    .replace('{namespace}', '(?<namespace>[^/]+)')
+    .replace('{languageTag}', '(?<languageTag>[^.]+)')
+    .replace('{extension}', '(?<extension>.+)');
+
+  return new RegExp(regexPattern);
+}
+
+export const getStaticData = async (pullRoot: Schema["pull"] | undefined) => {
   const staticData: { [key: string]: TreeTranslationsData } = {};
   const staticDataFiles: Record<string, { content: string, path: Uri }> = {};
 
-  for (const file of files ?? []) {
-    const data = await getFileFromPath(file.path);
+  if (!pullRoot?.path) {
+    window.showErrorMessage("Tolgee config needs pull.path for Tolgee extension to work.");
+    return { staticData, staticDataFiles };
+  }
+
+  for (const file of await readFileUrisFromPath(pullRoot.path) ?? []) {
+    const fileLocalTolgeePath = file.path.split(pullRoot.path)[1];
+    const data = await getFileFromPath(pullRoot.path + fileLocalTolgeePath.split(".")[0]);
     if (!data) {
       continue;
     }
-    if (file.namespace) {
-      staticData[`${file.language}:${file.namespace}`] = data.translations;
-      staticDataFiles[`${file.language}:${file.namespace}`] = { content: data.rawFile, path: data.filePath };
+
+
+    const regex = pullRoot.fileStructureTemplate ? createRegexFromTemplate(pullRoot.fileStructureTemplate) : /(?<namespace>[^/]*)\/?(?<languageTag>[^.]+)\.(?<extension>.+)/g
+
+    const match = fileLocalTolgeePath.match(regex);
+
+    if (match && match.groups) {
+      const { namespace, languageTag, extension } = match.groups;
+      staticData[`${languageTag}:${namespace}`] = data.translations;
+      staticDataFiles[`${languageTag}:${namespace}`] = { content: data.rawFile, path: data.filePath };
     } else {
-      staticData[file.language] = data.translations;
-      staticDataFiles[file.language] = { content: data.rawFile, path: data.filePath };
+      const parts: Array<string> = fileLocalTolgeePath.split("/");
+      const lang = parts[parts.length === 1 ? 0 : 1].split(".")[0];
+      staticData[lang] = data.translations;
+      staticDataFiles[lang] = { content: data.rawFile, path: data.filePath };
     }
   }
   return { staticData, staticDataFiles };

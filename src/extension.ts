@@ -4,7 +4,7 @@ import { initTolgee } from './utils/tolgee';
 import { useAnnotations } from './annotation';
 import { useCompletion } from './completions';
 import loadTolgeeRc from './tolgeerc';
-import { commands, languages, Location, Position, StatusBarAlignment, ThemeColor, Uri, window, workspace } from "vscode";
+import { languages, Location, Position, StatusBarAlignment, Uri, window, workspace } from "vscode";
 import { getStaticData } from './tolgee';
 import { config } from './utils/config';
 
@@ -60,7 +60,7 @@ export = defineExtension(async () => {
 
 	const item = useStatusBarItem({
 		alignment: StatusBarAlignment.Right,
-		command: 'tolgee.changeLanguage',
+		command: 'tolgeev2.changeLanguage',
 		tooltip: "Switch tolgee language"
 	});
 
@@ -71,15 +71,15 @@ export = defineExtension(async () => {
 
 	const tolgeeRc = ref(await loadTolgeeRc());
 
-	useCommand('tolgee.changeLanguage', async () => {
+	useCommand('tolgeev2.changeLanguage', async () => {
 		if (tolgeeRc.value?.config?.push?.files) {
-			const newLanguage = await window.showQuickPick(tolgeeRc.value?.config.push!.files!.map(f => f.language), { title: "Which language values should be shown in VSCode?" }) ?? language.value;
+			const newLanguage = await window.showQuickPick(tolgeeRc.value.languages, { title: "Which language values should be shown in VSCode?" }) ?? language.value;
 			language.value = newLanguage;
 			window.showInformationMessage(`Tolgee preview language set to ${newLanguage}`);
 		}
 	});
 
-	staticData = ref(await getStaticData(tolgeeRc.value?.config?.push?.files ?? []));
+	staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull));
 
 	let tolgee = ref<TolgeeInstance | undefined>(await initTolgee(staticData.value.staticData, language, logger));
 
@@ -91,13 +91,13 @@ export = defineExtension(async () => {
 		onDidSaveTextDocument(async (document) => {
 			const configFiles = tolgeeRc.value!.config!.push!.files!.map(f => f.path);
 			if (configFiles.some(f => document.uri.fsPath.endsWith(f))) {
-				staticData = ref(await getStaticData(tolgeeRc.value?.config?.push?.files ?? []));
+				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull));
 				tolgee.value?.updateOptions({ staticData: staticData.value.staticData });
 				tolgee.value = tolgee.value;
 				init();
 			} else if (document.fileName === tolgeeRc.value?.filepath) {
 				logger.info("Tolgee config change. Reload");
-				staticData = ref(await getStaticData(tolgeeRc.value?.config?.push?.files ?? []));
+				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull));
 				tolgee = ref<TolgeeInstance | undefined>(await initTolgee(staticData.value.staticData, language, logger));
 			}
 		});
