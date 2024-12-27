@@ -1,5 +1,5 @@
-export const REGEX_FUNCTIONAL_EXPRESSION = /[\$\s]+t\(["`']([\w.]*)["`'],?\s?(?:["`'][\w\s{}]*["`'],\s?)?(\{[\w\s:"',]*\})?/g
-export const REGEX_FUNCTIONAL_START_EXPRESSION = /[\$\s]+t\((?:["'`]([\w.]+))?/g
+export const REGEX_FUNCTIONAL_EXPRESSION = /[\$]?t\(["`']([\w.]*)["`'],?\s?(?:["`'][\w\s{}]*["`'],\s?)?(\{[\w\s:"',]*\})?/g
+export const REGEX_FUNCTIONAL_START_EXPRESSION = /[\$]?t\((?:["'`]([\w.]+))?/g
 export const REGEX_HTML_EXPRESSION = /<T\s+keyName\s*=\s*["'`]([\w.]+)["'`]\s*(?:(?:defaultValue\s?=\s?)*["'`][\w\s{}]+["'`]\s*|(?:params\s?=\s?)*["'`{]([\w\s{}:'"`,]+)["'`}]+)*/g
 export const REGEX_HTML_START_EXPRESSION = /<T\s+keyName\s*=\s*(?:["'`]([\w.]+))?/g
 
