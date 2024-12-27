@@ -2,7 +2,7 @@
   "publisher": "LILAGLASS",
   "name": "tolgeev2",
   "displayName": "Tolgee",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Get autocompletion and inline preview for your tolgee projects",
   "repository": {
     "type": "git",
@@ -23,29 +23,30 @@
     "onLanguage:js",
     "onLanguage:svelte",
     "onLanguage:html",
-    "onDidChangeTextDocument"
+    "onDidChangeTextDocument",
+    "onStartupFinished"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "tolgee.changeLanguage",
+        "command": "tolgeev2.changeLanguage",
         "title": "Tolgee: Change language"
       }
     ],
     "configuration": {
       "title": "Tolgee",
       "properties": {
-        "tolgee.language": {
+        "tolgeev2.language": {
           "type": "string",
           "default": "en",
           "description": "The language to use for the tolgee value preview."
         },
-        "tolgee.highlightColor": {
+        "tolgeev2.highlightColor": {
           "type": "string",
           "default": "#ec417a",
           "description": "The color to be used to highlight tolgee keys."
         },
-        "tolgee.filePattern": {
+        "tolgeev2.filePattern": {
           "type": "string",
           "default": "**/*.{tsx,jsx,js,ts,svelte,html}",
           "description": "The pattern in which the extension should search for tolgee keys."

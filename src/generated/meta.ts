@@ -3,8 +3,8 @@
 
 // Meta info
 export const publisher = "LILAGLASS"
-export const name = "tolgee"
-export const version = "0.1.0"
+export const name = "tolgeev2"
+export const version = "0.1.2"
 export const displayName = "Tolgee"
 export const description = "Get autocompletion and inline preview for your tolgee projects"
 export const extensionId = `${publisher}.${name}`
@@ -13,37 +13,37 @@ export const extensionId = `${publisher}.${name}`
  * Type union of all commands
  */
 export type CommandKey = 
-  | "tolgee.changeLanguage"
+  | "tolgeev2.changeLanguage"
 
 /**
- * Commands map registed by `LILAGLASS.tolgee`
+ * Commands map registed by `LILAGLASS.tolgeev2`
  */
 export const commands = {
   /**
    * Tolgee: Change language
-   * @value `tolgee.changeLanguage`
+   * @value `tolgeev2.changeLanguage`
    */
-  changeLanguage: "tolgee.changeLanguage",
+  changeLanguage: "tolgeev2.changeLanguage",
 } satisfies Record<string, CommandKey>
 
 /**
  * Type union of all configs
  */
 export type ConfigKey = 
-  | "tolgee.language"
-  | "tolgee.highlightColor"
-  | "tolgee.filePattern"
+  | "tolgeev2.language"
+  | "tolgeev2.highlightColor"
+  | "tolgeev2.filePattern"
 
 export interface ConfigKeyTypeMap {
-  "tolgee.language": string,
-  "tolgee.highlightColor": string,
-  "tolgee.filePattern": string,
+  "tolgeev2.language": string,
+  "tolgeev2.highlightColor": string,
+  "tolgeev2.filePattern": string,
 }
 
 export interface ConfigShorthandMap {
-  language: "tolgee.language",
-  highlightColor: "tolgee.highlightColor",
-  filePattern: "tolgee.filePattern",
+  language: "tolgeev2.language",
+  highlightColor: "tolgeev2.highlightColor",
+  filePattern: "tolgeev2.filePattern",
 }
 
 export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
@@ -53,39 +53,39 @@ export interface ConfigItem<T extends keyof ConfigKeyTypeMap> {
 
 
 /**
- * Configs map registered by `LILAGLASS.tolgee`
+ * Configs map registered by `LILAGLASS.tolgeev2`
  */
 export const configs = {
   /**
    * The language to use for the tolgee value preview.
-   * @key `tolgee.language`
+   * @key `tolgeev2.language`
    * @default `"en"`
    * @type `string`
    */
   language: {
-    key: "tolgee.language",
+    key: "tolgeev2.language",
     default: "en",
-  } as ConfigItem<"tolgee.language">,
+  } as ConfigItem<"tolgeev2.language">,
   /**
    * The color to be used to highlight tolgee keys.
-   * @key `tolgee.highlightColor`
+   * @key `tolgeev2.highlightColor`
    * @default `"#ec417a"`
    * @type `string`
    */
   highlightColor: {
-    key: "tolgee.highlightColor",
+    key: "tolgeev2.highlightColor",
     default: "#ec417a",
-  } as ConfigItem<"tolgee.highlightColor">,
+  } as ConfigItem<"tolgeev2.highlightColor">,
   /**
    * The pattern in which the extension should search for tolgee keys.
-   * @key `tolgee.filePattern`
+   * @key `tolgeev2.filePattern`
    * @default `"**\/*.{tsx,jsx,js,ts,svelte,html}"`
    * @type `string`
    */
   filePattern: {
-    key: "tolgee.filePattern",
+    key: "tolgeev2.filePattern",
     default: "**/*.{tsx,jsx,js,ts,svelte,html}",
-  } as ConfigItem<"tolgee.filePattern">,
+  } as ConfigItem<"tolgeev2.filePattern">,
 }
 
 export interface ScopedConfigKeyTypeMap {
@@ -95,7 +95,7 @@ export interface ScopedConfigKeyTypeMap {
 }
 
 export const scopedConfigs = {
-  scope: "tolgee",
+  scope: "tolgeev2",
   defaults: {
     "language": "en",
     "highlightColor": "#ec417a",
@@ -104,7 +104,7 @@ export const scopedConfigs = {
 }
 
 export interface NestedConfigs {
-  "tolgee": {
+  "tolgeev2": {
     "language": string,
     "highlightColor": string,
     "filePattern": string,
