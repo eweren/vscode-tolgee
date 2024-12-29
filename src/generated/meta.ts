@@ -4,7 +4,7 @@
 // Meta info
 export const publisher = "LILAGLASS"
 export const name = "tolgeev2"
-export const version = "0.1.2"
+export const version = "0.1.5"
 export const displayName = "Tolgee"
 export const description = "Get autocompletion and inline preview for your tolgee projects"
 export const extensionId = `${publisher}.${name}`

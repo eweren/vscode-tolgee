@@ -28,11 +28,9 @@ export const getFileFromPath = async (path: string) => {
   }
 };
 
-export const readFileUrisFromPath = async (path: string) => {
+export const readFileUrisFromPath = async (path: string, logger: ReturnType<typeof useLogger>) => {
   try {
     const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}/*.json`));
-
-    const logger = useLogger("Tolgee22");
 
     logger.info(JSON.stringify(filePath));
     return filePath;
@@ -42,10 +40,9 @@ export const readFileUrisFromPath = async (path: string) => {
   }
 };
 
-export const readLanguagesFromFromPath = async (path: string) => {
+export const readLanguagesFromFromPath = async (path: string, logger: ReturnType<typeof useLogger>) => {
   try {
     const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}/*.json`));
-    const logger = useLogger("Tolgee");
     logger.info(filePath.map(a => a.path.split("/").pop()!.split(".")[0]))
     return filePath.map(a => a.path.split("/").pop()!.split(".")[0]);
   } catch (e) {
@@ -67,7 +64,7 @@ function createRegexFromTemplate(template: string): RegExp {
   return new RegExp(regexPattern);
 }
 
-export const getStaticData = async (pullRoot: Schema["pull"] | undefined) => {
+export const getStaticData = async (pullRoot: Schema["pull"] | undefined, logger: ReturnType<typeof useLogger>) => {
   const staticData: { [key: string]: TreeTranslationsData } = {};
   const staticDataFiles: Record<string, { content: string, path: Uri }> = {};
 
@@ -76,7 +73,7 @@ export const getStaticData = async (pullRoot: Schema["pull"] | undefined) => {
     return { staticData, staticDataFiles };
   }
 
-  for (const file of await readFileUrisFromPath(pullRoot.path) ?? []) {
+  for (const file of await readFileUrisFromPath(pullRoot.path, logger) ?? []) {
     const fileLocalTolgeePath = file.path.split(pullRoot.path)[1];
     const data = await getFileFromPath(pullRoot.path + fileLocalTolgeePath.split(".")[0]);
     if (!data) {

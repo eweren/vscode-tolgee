@@ -19,7 +19,7 @@ export async function initTolgee(staticData: TolgeeStaticData, language: ConfigR
 
   const apiKey = Object.values(Object.values(tolgeeStore).find((value) => typeof value?.projects !== "undefined")?.projects ?? {})?.[0]?.token;
 
-  const tolgeeRc = await loadTolgeeRc();
+  const tolgeeRc = await loadTolgeeRc(logger);
 
   if (!apiKey) {
     window.showErrorMessage("No API key. Please login with Tolgee cli first");

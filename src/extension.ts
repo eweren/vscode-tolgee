@@ -69,7 +69,7 @@ export = defineExtension(async () => {
 
 	useDisposable(definitionProvider);
 
-	const tolgeeRc = ref(await loadTolgeeRc());
+	const tolgeeRc = ref(await loadTolgeeRc(logger));
 
 	useCommand('tolgeev2.changeLanguage', async () => {
 		if (tolgeeRc.value?.config?.push?.files) {
@@ -79,7 +79,7 @@ export = defineExtension(async () => {
 		}
 	});
 
-	staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull));
+	staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull, logger));
 
 	let tolgee = ref<TolgeeInstance | undefined>(await initTolgee(staticData.value.staticData, language, logger));
 
@@ -91,13 +91,13 @@ export = defineExtension(async () => {
 		onDidSaveTextDocument(async (document) => {
 			const configFiles = tolgeeRc.value!.config!.push!.files!.map(f => f.path);
 			if (configFiles.some(f => document.uri.fsPath.endsWith(f))) {
-				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull));
+				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull, logger));
 				tolgee.value?.updateOptions({ staticData: staticData.value.staticData });
 				tolgee.value = tolgee.value;
 				init();
 			} else if (document.fileName === tolgeeRc.value?.filepath) {
 				logger.info("Tolgee config change. Reload");
-				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull));
+				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull, logger));
 				tolgee = ref<TolgeeInstance | undefined>(await initTolgee(staticData.value.staticData, language, logger));
 			}
 		});

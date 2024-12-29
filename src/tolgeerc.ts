@@ -7,6 +7,7 @@ import { workspace } from "vscode";
 import { existsSync } from 'fs';
 import type { Schema } from './schema';
 import { readLanguagesFromFromPath } from './tolgee';
+import { useLogger } from 'reactive-vscode';
 
 const explorer = cosmiconfig('tolgee', {
   loaders: {
@@ -88,7 +89,7 @@ async function getSchema() {
   }
 }
 
-export default async function loadTolgeeRc(): Promise<{ config: Schema, filepath: string, languages: Array<string> } | null> {
+export default async function loadTolgeeRc(logger: ReturnType<typeof useLogger>): Promise<{ config: Schema, filepath: string, languages: Array<string> } | null> {
   let res: CosmiconfigResult;
 
   res = await explorer.search(workspace.rootPath);
@@ -112,7 +113,7 @@ export default async function loadTolgeeRc(): Promise<{ config: Schema, filepath
   }
 
   if (config.pull?.path) {
-    const languages = await readLanguagesFromFromPath(config.pull.path) ?? [];
+    const languages = await readLanguagesFromFromPath(config.pull.path, logger) ?? [];
     return { config, filepath: res.filepath, languages };
   }
 
