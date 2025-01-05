@@ -52,19 +52,6 @@ function parseConfig(input: Schema, configDir: string): Schema {
     );
   }
 
-  // convert relative paths in config to absolute
-  if (rc.push?.files) {
-    rc.push.files = rc.push.files.map((r) => ({
-      ...r,
-      path: resolve(configDir, r.path).replace(/\\/g, '/'),
-    }));
-  }
-
-  // convert relative paths in config to absolute
-  if (rc.pull?.path !== undefined) {
-    rc.pull.path = resolve(configDir, rc.pull.path).replace(/\\/g, '/');
-  }
-
   return rc;
 }
 
@@ -92,11 +79,15 @@ async function getSchema() {
 export default async function loadTolgeeRc(logger: ReturnType<typeof useLogger>): Promise<{ config: Schema, filepath: string, languages: Array<string> } | null> {
   let res: CosmiconfigResult;
 
-  res = await explorer.search(workspace.rootPath);
+  const path = workspace.workspaceFolders![0].uri.fsPath;
+  res = await explorer.search(path);
+
 
   if (!res || res.isEmpty) { return null; }
 
-  const config = parseConfig(res.config, dirname('.'));
+  const originalPullPath = res.config.pull?.path;
+
+  const config = parseConfig(res.config, path);
 
   const validator = new Validator();
   const schema = await getSchema();
@@ -113,7 +104,7 @@ export default async function loadTolgeeRc(logger: ReturnType<typeof useLogger>)
   }
 
   if (config.pull?.path) {
-    const languages = await readLanguagesFromFromPath(config.pull.path, logger) ?? [];
+    const languages = await readLanguagesFromFromPath(originalPullPath, logger) ?? [];
     return { config, filepath: res.filepath, languages };
   }
 

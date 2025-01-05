@@ -19,7 +19,7 @@ type Store = {
 
 export const getFileFromPath = async (path: string) => {
   try {
-    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}.json`))[0];
+    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "").replace(/^\./, "**")}.json`))[0];
     const rawFile = readFileSync(filePath.fsPath, 'utf8');
     return { translations: JSON.parse(rawFile) as TreeTranslationsData, rawFile, filePath };
   } catch (e) {
@@ -30,9 +30,9 @@ export const getFileFromPath = async (path: string) => {
 
 export const readFileUrisFromPath = async (path: string, logger: ReturnType<typeof useLogger>) => {
   try {
-    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}/*.json`));
+    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "").replace(/^\./, "**")}/*.json`));
 
-    logger.info(JSON.stringify(filePath));
+    logger.info(JSON.stringify(filePath.map(a => a.path), null, 2));
     return filePath;
   } catch (e) {
     window.showErrorMessage(`Translation data under ${path} could not be parsed. Is it valid JSON?`);
@@ -42,8 +42,8 @@ export const readFileUrisFromPath = async (path: string, logger: ReturnType<type
 
 export const readLanguagesFromFromPath = async (path: string, logger: ReturnType<typeof useLogger>) => {
   try {
-    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "")}/*.json`));
-    logger.info(filePath.map(a => a.path.split("/").pop()!.split(".")[0]))
+    const filePath = (await workspace.findFiles(`${path.replace(/^\//, "").replace(/^\./, "**")}/*.json`));
+    logger.info("Locales: " + filePath.map(a => a.path.split("/").pop()!.split(".")[0]))
     return filePath.map(a => a.path.split("/").pop()!.split(".")[0]);
   } catch (e) {
     window.showErrorMessage(`Translation data under ${path} could not be parsed. Is it valid JSON?`);
@@ -74,7 +74,7 @@ export const getStaticData = async (pullRoot: Schema["pull"] | undefined, logger
   }
 
   for (const file of await readFileUrisFromPath(pullRoot.path, logger) ?? []) {
-    const fileLocalTolgeePath = file.path.split(pullRoot.path)[1];
+    const fileLocalTolgeePath = file.path.split(pullRoot.path.replace(/^\./, ""))[1];
     const data = await getFileFromPath(pullRoot.path + fileLocalTolgeePath.split(".")[0]);
     if (!data) {
       continue;
