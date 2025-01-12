@@ -87,10 +87,9 @@ export = defineExtension(async () => {
 		return;
 	}
 
-	if ((tolgeeRc.value?.config?.push?.files?.length ?? 0) > 0) {
+	if (typeof tolgeeRc.value?.config?.pull?.path !== "undefined") {
 		onDidSaveTextDocument(async (document) => {
-			const configFiles = tolgeeRc.value!.config!.push!.files!.map(f => f.path);
-			if (configFiles.some(f => document.uri.fsPath.endsWith(f))) {
+			if (document.uri.fsPath.includes(tolgeeRc.value!.config!.pull!.path!)) {
 				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull, logger));
 				tolgee.value?.updateOptions({ staticData: staticData.value.staticData });
 				tolgee.value = tolgee.value;
