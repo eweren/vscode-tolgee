@@ -89,7 +89,8 @@ export = defineExtension(async () => {
 
 	if (typeof tolgeeRc.value?.config?.pull?.path !== "undefined") {
 		onDidSaveTextDocument(async (document) => {
-			if (document.uri.fsPath.includes(tolgeeRc.value!.config!.pull!.path!.replace(/^./, ""))) {
+			// Fix windows path by replacing backslashes with forward slashes
+			if (document.uri.fsPath.replace(/\\/g, "/").includes(tolgeeRc.value!.config!.pull!.path!.replace(/^./, ""))) {
 				staticData = ref(await getStaticData(tolgeeRc.value?.config?.pull, logger));
 				tolgee.value?.updateOptions({ staticData: staticData.value.staticData });
 				tolgee.value = tolgee.value;
