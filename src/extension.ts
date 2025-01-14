@@ -49,7 +49,6 @@ const definitionProvider = languages.registerDefinitionProvider(["svelte", "html
 export = defineExtension(async () => {
 	const logger = useLogger('Tolgee');
 	logger.info('Extension Activated');
-	logger.show();
 
 	const { language } = defineConfigs('tolgeev2', {
 		language: String,
