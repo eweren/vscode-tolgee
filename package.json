@@ -2,7 +2,7 @@
   "publisher": "LILAGLASS",
   "name": "tolgeev2",
   "displayName": "Tolgee",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Get autocompletion and inline preview for your tolgee projects",
   "repository": {
     "type": "git",
