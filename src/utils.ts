@@ -1,6 +1,6 @@
-export const REGEX_FUNCTIONAL_EXPRESSION = /(?:\Wt|^t)\(["`']([\w.]*)["`'],?\s?(?:["`'][\w\s{}]*["`'],\s?)?(\{[\w\s:"',]*\})?/g
+export const REGEX_FUNCTIONAL_EXPRESSION = /(?:\Wt|^t)\(["`']([\w.]*)["`'],[\n\s\t\r]?(?:["`'][\w\s{}]*["`'],[\n\s\t\r]?)?(\{[\w\s:"',]*\})?/g
 export const REGEX_FUNCTIONAL_START_EXPRESSION = /(?:\Wt|^t)\((?:["'`]([\w.]+))?/g
-export const REGEX_HTML_EXPRESSION = /<T\s+keyName\s*=\s*["'`]([\w.]+)["'`]\s*(?:(?:defaultValue\s?=\s?)*["'`][\w\s{}]+["'`]\s*|(?:params\s?=\s?)*["'`{]([\w\s{}:'"`,]+)["'`}]+)*/g
+export const REGEX_HTML_EXPRESSION = /<T\s+keyName\s*=\s*["'`]([\w.]+)["'`][\n\s\t\r]*(?:(?:defaultValue\s?=\s?)*["'`][\w\s{}]+["'`][\n\s\t\r]*|(?:params\s?=\s?)*["'`{]([\w\s{}:'"`,]+)["'`}]+)*/g
 export const REGEX_HTML_START_EXPRESSION = /<T\s+keyName\s*=\s*(?:["'`]([\w.]+))?/g
 
 export const flattenObj = (obj: any, parent?: any, res: Record<string, string> = {}) => {

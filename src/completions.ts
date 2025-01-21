@@ -8,11 +8,9 @@ import { TranslationsFlat } from '@tolgee/core';
 export function useCompletion(translations: Ref<TranslationsFlat>, logger: ReturnType<typeof useLogger>) {
   const ctx = extensionContext.value!;
 
-  const translationsAsArray = computed(() =>
-    Array.from(translations.value.entries()).map(key => {
-      return new CompletionItem({ label: key[0], description: key[1]! }, CompletionItemKind.EnumMember);
-    })
-  );
+  const translationsAsArray = computed(() => Array.from(new Set(translations.value.keys())).map(key => {
+    return new CompletionItem({ label: key, description: translations.value.get(key)! }, CompletionItemKind.EnumMember);
+  }));
 
   const completionItemProvider: CompletionItemProvider = {
     provideCompletionItems(document: TextDocument, position: Position) {
